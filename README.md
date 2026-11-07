@@ -1,7 +1,7 @@
 # Around Ryan St
 
 A neighbour-run weekly briefing on council, state and development activity around Ryan St, Coburg.
-Live at https://ryanstreet.vercel.app
+Live at https://around-ryan-street.vercel.app
 
 ## How it works
 

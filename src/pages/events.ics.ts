@@ -15,7 +15,7 @@ export function GET() {
     const next = new Date(Date.UTC(+e.date.slice(0, 4), +e.date.slice(5, 7) - 1, +e.date.slice(8, 10) + 1));
     const d2 = `${next.getUTCFullYear()}${pad(next.getUTCMonth() + 1)}${pad(next.getUTCDate())}`;
     const p = e.ref ? byId[e.ref] : null;
-    const url = p ? `https://ryanstreet.vercel.app/item/${p.id}` : e.link || 'https://ryanstreet.vercel.app';
+    const url = p ? `https://around-ryan-street.vercel.app/item/${p.id}` : e.link || 'https://around-ryan-street.vercel.app';
     const desc = [e.time ? `Time: ${e.time}` : '', p ? p.what : '', url].filter(Boolean).join('\n');
     lines.push('BEGIN:VEVENT', `UID:${d}-${(e.ref || e.title).replace(/[^a-z0-9]/gi, '').slice(0, 40)}@ryanstreet`, `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${d2}`, fold(`SUMMARY:${esc(e.title)}`), fold(`DESCRIPTION:${esc(desc)}`),

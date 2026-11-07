@@ -30,7 +30,7 @@ h3{font-size:16px;font-family:var(--body);font-weight:600}
 .ico{display:inline-block;width:1.4em;flex:none;text-align:center}
 
 /* Sticky nav */
-.nav{position:sticky;top:0;z-index:1000;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{position:sticky;top:0;z-index:1100;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav .wrap{display:flex;align-items:center;gap:16px;height:var(--nav-h)}
 .brand{font-family:var(--display);font-weight:700;text-decoration:none;color:var(--ink);white-space:nowrap}
 .navlinks{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;mask-image:linear-gradient(90deg,#000 90%,transparent)}
@@ -151,3 +151,5 @@ footer p{max-width:80ch}
 @media (prefers-color-scheme:dark){#leaflet-map .leaflet-tile-pane{filter:invert(.92) hue-rotate(180deg) saturate(.4) brightness(.9)}}
 .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:color-mix(in srgb,var(--accent) 30%,transparent)}
 .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:var(--accent);color:#fff;font-family:var(--mono);font-weight:500}
+
+#leaflet-map{position:relative;isolation:isolate;z-index:0}

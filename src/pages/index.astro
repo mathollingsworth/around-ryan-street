@@ -20,7 +20,7 @@ const groups = [
 ].filter((g) => g.items.length);
 
 const decLabel = (d: string | undefined, dflt: string) => !d ? dflt : d.length === 7 ? fmtMonth(d).split(' ')[0] : fmtShort(d);
-const works = upcoming.filter((e) => e.kind === 'works');
+const works = upcoming.filter((e) => e.kind === 'works' && /tram|train|bus|road|upfield|route|closure|level crossing|traffic|rail/i.test(e.title + ' ' + (e.where || '')));
 const transportProjects = projects.filter((p) => ['🚋', '🚆', '🚧'].includes(p.icon || '') || /upfield|route 19|tram|level crossing/i.test(p.name));
 const decs = projects.filter((p) => p.decision);
 const due = decs.filter((p) => p.decision!.state === 'due').sort((a, b) => (a.decision!.date || '9').localeCompare(b.decision!.date || '9'));
