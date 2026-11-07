@@ -46,6 +46,10 @@ export const liveLinks: { label: string; url: string }[] = data.live_links || []
 export const updated: string = data.updated;
 
 export const iconOf = (p: Project) => p.icon || CATS[p.cat]?.icon || '•';
+export const SHORT: Record<string, string> = { dev: 'Planning', street: 'Streets & schools', park: 'Parks', sport: 'Sport', civic: 'Council business', wide: 'Council-wide' };
+export const COL: Record<string, string> = { dev: 'var(--cat-dev)', street: 'var(--cat-street)', park: 'var(--cat-park)', sport: 'var(--cat-sport)', civic: 'var(--cat-civic)', wide: 'var(--cat-wide)' };
+export const SHOW_WHY = true; // "Why it matters here" block in the detail sheet
+export const kmLabel = (p: Project) => (p.km != null ? `${p.km.toFixed(1)} km` : '');
 export const linkOf = (p: Project) => p.link || `https://conversations.merri-bek.vic.gov.au/${p.url}`;
 export const labelOf = (p: Project) => p.link_label || 'Council project page';
 // Images are served from the original public source through a free resizing CDN (wsrv.nl),

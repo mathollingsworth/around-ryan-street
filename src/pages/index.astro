@@ -1,227 +1,219 @@
 ---
 import Base from '../layouts/Base.astro';
-import { data, projects, byId, events, whatsNew, liveLinks, updated, CATS, KINDS, iconOf, imgOf, linkOf, labelOf, fmtDate, fmtShort, fmtDow, fmtMonth, HOME } from '../lib/data';
+import { data, projects, byId, events, whatsNew, liveLinks, updated, CATS, SHORT, COL, imgOf, resized, kmLabel, fmtDate, fmtShort, fmtDow, fmtMonth, pd, HOME } from '../lib/data';
+import { icon } from '../lib/icons';
 
+// Server render uses the build date; the client script re-checks "today" so day counts stay right between weekly builds.
 const today = new Date().toISOString().slice(0, 10);
-const plus = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
-const isNew = (p: any) => p.first_seen && (Date.parse(updated) - Date.parse(p.first_seen)) <= 10 * 864e5;
+const daysBetween = (a: string, b: string) => Math.round((pd(b).getTime() - pd(a).getTime()) / 864e5);
+const isNew = (p: any) => !!p.first_seen && (Date.parse(updated) - Date.parse(p.first_seen)) <= 10 * 864e5;
 const near = (p: any) => p.km != null && p.km <= 2.1;
+const subscribe = data.subscribe_url || 'https://buttondown.com/ryanstreet';
 
-const items = whatsNew.items || [];
-const datesItems = items.filter((i) => i.group === 'dates');
-const newItems = items.filter((i) => i.group === 'new');
-const tiles = (whatsNew.ids || []).map((id) => byId[id]).filter(Boolean);
+// 1. Weekly summary
+const summary = (whatsNew.summary || []).map((s: string) => { const k = s.indexOf(':'); return k > 0 ? { lead: s.slice(0, k + 1), rest: s.slice(k + 1).trim() } : { lead: '', rest: s }; });
 
+// 2. Have your say: open projects, soonest closing first
 const upcoming = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-const groups = [
-  { name: 'Next 7 days', items: upcoming.filter((e) => e.date < plus(7)) },
-  { name: 'Next 30 days', items: upcoming.filter((e) => e.date >= plus(7) && e.date < plus(31)) },
-  { name: 'Later', items: upcoming.filter((e) => e.date >= plus(31)) },
-].filter((g) => g.items.length);
+const closesBy: Record<string, string> = {};
+upcoming.filter((e) => e.kind === 'closes' && e.ref).forEach((e) => { if (!closesBy[e.ref!]) closesBy[e.ref!] = e.date; });
+const closing = projects.filter((p) => p.open).sort((a, b) => (closesBy[a.id] || '9').localeCompare(closesBy[b.id] || '9'));
+const leftLabel = (n: number) => (n <= 0 ? 'Today' : n === 1 ? '1 day' : `${n} days`);
 
-const decLabel = (d: string | undefined, dflt: string) => !d ? dflt : d.length === 7 ? fmtMonth(d).split(' ')[0] : fmtShort(d);
-const works = upcoming.filter((e) => e.kind === 'works' && /tram|train|bus|road|upfield|route|closure|level crossing|traffic|rail/i.test(e.title + ' ' + (e.where || '')));
-const transportProjects = projects.filter((p) => ['🚋', '🚆', '🚧'].includes(p.icon || '') || /upfield|route 19|tram|level crossing/i.test(p.name));
-const decs = projects.filter((p) => p.decision);
-const due = decs.filter((p) => p.decision!.state === 'due').sort((a, b) => (a.decision!.date || '9').localeCompare(b.decision!.date || '9'));
-const made = decs.filter((p) => p.decision!.state === 'made').sort((a, b) => (b.decision!.date || '0').localeCompare(a.decision!.date || '0'));
+// 3. New near you
+const nearby = [...new Set(whatsNew.ids || [])].map((id) => byId[id]).filter(Boolean).sort((a, b) => (a.km ?? 99) - (b.km ?? 99));
 
-const noLoc = projects.filter((p) => p.lat == null).sort((a, b) => (b.first_seen || '').localeCompare(a.first_seen || ''));
+// 4. Agenda: events plus due decisions that have no event of their own
+const KIND: Record<string, [string, string]> = { closes: ['Closes', 'tag-accent'], popup: ['Pop-up', 'tag-accent-2'], event: ['Event', 'tag-accent-2'], decision: ['Decision', 'tag-neutral'], household: ['At home', 'tag-outline'], works: ['Works', 'tag-neutral'] };
+const AGROUP: Record<string, string> = { closes: 'say', popup: 'say', decision: 'decision', household: 'home', works: 'home', event: 'event' };
+const evDecRefs = new Set(upcoming.filter((e) => e.kind === 'decision').map((e) => e.ref));
+const decEvents = projects.filter((p) => p.decision?.state === 'due' && p.decision.date && p.decision.date >= today.slice(0, p.decision.date.length) && !evDecRefs.has(p.id))
+  .map((p) => ({ date: p.decision!.date!.length === 7 ? p.decision!.date + '-01' : p.decision!.date!, title: p.decision!.text, kind: 'decision', ref: p.id, end_label: p.decision!.date!.length === 7 ? fmtMonth(p.decision!.date!) : undefined } as any));
+const agendaItems = [...upcoming, ...decEvents].sort((a, b) => a.date.localeCompare(b.date));
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const thisYear = pd(today).getUTCFullYear();
+const agenda: { name: string; items: any[] }[] = [];
+for (const e of agendaItems) {
+  const d = pd(e.date);
+  const name = MONTHS[d.getUTCMonth()] + (d.getUTCFullYear() !== thisYear ? ` ${d.getUTCFullYear()}` : '');
+  let g = agenda.find((x) => x.name === name); if (!g) { g = { name, items: [] }; agenda.push(g); }
+  g.items.push(e);
+}
+const made = projects.filter((p) => p.decision?.state === 'made').sort((a, b) => (b.decision!.date || '0').localeCompare(a.decision!.date || '0')).slice(0, 4);
+
+// 5. Map
 const located = projects.filter((p) => p.lat != null);
-const within2 = located.filter(near).length;
-const openCount = projects.filter((p) => p.open).length;
+const cats = Object.keys(CATS).filter((k) => located.some((p) => p.cat === k));
 
-const order = Object.keys(CATS);
-const all = [...projects].sort((a, b) => (order.indexOf(a.cat) - order.indexOf(b.cat)) || ((a.km ?? 99) - (b.km ?? 99)));
+// 6. Register (client script filters, sorts and limits to 9)
+const KIDS = /play|school|kids|children|famil|pool|aquatic|swim|library|festival|carols|childcare|disc golf/i;
+const reg = [...projects].sort((a, b) => (a.km ?? 99) - (b.km ?? 99));
 
 const clientData = {
-  home: HOME, updated,
-  cats: CATS,
-  projects: projects.map((p) => ({ ...p, img: imgOf(p), href: linkOf(p), hrefLabel: labelOf(p), icon: iconOf(p), isNew: !!isNew(p) })),
+  home: HOME, updated, col: COL, short: SHORT,
+  projects: projects.map((p) => ({ id: p.id, cat: p.cat, name: p.name, sub: p.sub, lat: p.lat, lon: p.lon, km: p.km, open: !!p.open, status: p.status, what: p.what, when: p.when, why: p.why,
+    href: p.link || `https://conversations.merri-bek.vic.gov.au/${p.url}`, hrefLabel: p.link_label || 'Council project page', img: imgOf(p), first_seen: p.first_seen, decision: p.decision, isNew: isNew(p),
+    kids: p.cat === 'park' || KIDS.test(p.name + ' ' + p.what) })),
 };
 const description = 'A neighbour-run weekly briefing on council, state and development activity around Ryan St, Coburg.';
 ---
 <Base title="Around Ryan St · Coburg neighbour briefing" description={description}>
-  <header class="nav" id="top">
+  <header class="site-header" id="top">
     <div class="wrap">
-      <a class="brand" href="#top">Around Ryan St</a>
-      <nav class="navlinks" aria-label="Sections">
-        <a href="#this-week">This week</a>
-        <a href="#dates">Dates</a>
-        <a href="#decisions">Decisions</a>
-        <a href="#map">Map</a>
-        <a href="#transport">Transport</a>
-        <a href="#rules">Rules &amp; policy</a>
-        <a href="#all">Everything</a>
+      <a class="brand" href="#top"><span class="brand-mark" set:html={icon('house', 18, 'var(--color-bg)')} /><span class="brand-name">Around Ryan St</span></a>
+      <nav class="desk-nav" aria-label="Sections">
+        <a href="#this-week">This week</a><a href="#dates">Dates</a><a href="#map">Map</a><a href="#all">Everything</a>
       </nav>
-      <a class="btn primary" href={data.subscribe_url || 'https://buttondown.com/ryanstreet'} target="_blank" rel="noopener">✉️<span class="subscribe-label"> Weekly email</span></a>
+      <a class="btn btn-primary sub-btn" href={subscribe} target="_blank" rel="noopener"><Fragment set:html={icon('mail')} /><span class="only-desktop">Weekly email</span><span class="only-mobile">Subscribe</span></a>
     </div>
   </header>
 
   <main class="wrap">
-    <section class="hero" aria-labelledby="h-hero">
-      <div class="mono">Coburg · updated {fmtDate(updated)}</div>
-      <h1 id="h-hero">What's happening around Ryan St</h1>
-      <p>Council, state and developer plans in Coburg and nearby, in one place. Updated every week from Merri-bek Council, PlanningAlerts, the state planning register, Transport Victoria and VicEmergency. Every item links to its official source.</p>
-      <div class="chips">
-        {liveLinks.map((l) => <a class="chip" href={l.url} target="_blank" rel="noopener">{l.label} ↗</a>)}
-        <a class="chip" href="/events.ics">📅 Add dates to your calendar</a>
+    <section id="this-week" class="week" aria-labelledby="h-week">
+      <div class="week-l">
+        <div class="week-meta"><span class="tag tag-accent-2 tag-strong">Week of {fmtDate(whatsNew.week || updated)}</span><span class="meta">Coburg · a neighbour-run briefing</span></div>
+        <h1 id="h-week" class="h1">This week around Ryan St</h1>
+        <ol class="summary">
+          {summary.map((s, i) => <li><span class="num">{i + 1}</span><p>{s.lead && <strong>{s.lead}</strong>} {s.rest}</p></li>)}
+        </ol>
       </div>
-      <div class="stats">
-        <div class="stat"><b>{projects.length}</b><span class="small">items tracked</span></div>
-        <div class="stat"><b>{within2}</b><span class="small">within 2 km</span></div>
-        <div class="stat"><b>{openCount}</b><span class="small">open for feedback</span></div>
-        <div class="stat"><b>{upcoming.length}</b><span class="small">dates coming up</span></div>
-      </div>
+      <aside class="say" aria-labelledby="h-say">
+        <div class="say-head"><h2 id="h-say">Have your say</h2><span class="meta">{closing.length} open now</span></div>
+        {closing.map((p) => { const dt = closesBy[p.id]; const n = dt ? daysBetween(today, dt) : null; return (
+          <button class="unbtn say-row" data-open={p.id} data-closes={dt || ''}>
+            <span class={`left${n != null && n <= 7 ? ' urgent' : ''}`}>{n == null ? 'Ongoing' : leftLabel(n)}</span>
+            <span class="say-name"><b>{p.name}</b><span class="meta">Closes {dt ? `${fmtDow(dt)} ${fmtShort(dt)}` : 'when the trial ends'}</span></span>
+            <Fragment set:html={icon('chevron-right', 18, 'var(--color-neutral-600)')} />
+          </button>); })}
+        <a class="btn btn-secondary say-foot" href="#dates">See every date</a>
+      </aside>
     </section>
 
-    <section id="this-week" aria-labelledby="h-week">
-      <div class="sechead"><h2 id="h-week">📰 This week</h2><span class="mono">{whatsNew.week ? `week of ${fmtDate(whatsNew.week)}` : ''}</span></div>
-      <div class="panel">
-        <div class="wk">
-          <div>
-            <div class="mono group">Dates to note</div>
-            {datesItems.map((i) => { const p = i.ref ? byId[i.ref] : null; return (
-              <div class="row">
-                <div class="date"><b>{fmtShort(i.date!)}</b>{i.date === today ? 'Today' : fmtDow(i.date!)}</div>
-                <div class="irow"><span class="ico">{p ? iconOf(p) : KINDS[i.kind]?.icon}</span><div><span class={`kind k-${i.kind}`}>{i.tag}</span>{p ? <button class="open-item" data-open={p.id}>{i.text}</button> : i.text}</div></div>
-              </div>); })}
-          </div>
-          <div>
-            <div class="mono group">New this week</div>
-            {newItems.map((i) => { const p = i.ref ? byId[i.ref] : null; return (
-              <div class="row">
-                <div class="date"><b>{i.label}</b>{i.sub}</div>
-                <div class="irow"><span class="ico">{p ? iconOf(p) : KINDS[i.kind]?.icon}</span><div><span class={`kind k-${i.kind}`}>{i.tag}</span>{p ? <button class="open-item" data-open={p.id}>{i.text}</button> : i.text}</div></div>
-              </div>); })}
-          </div>
-        </div>
-        <div class="tiles">
-          {tiles.map((p) => (
-            <button class="tile" data-open={p.id}>
-              {imgOf(p) ? <img class="thumb" src={imgOf(p)} alt="" loading="lazy" /> : <div class="ph" style={`background:color-mix(in srgb, ${CATS[p.cat].colour} 18%, transparent)`}>{iconOf(p)}</div>}
-              <div class="tb"><h3>{iconOf(p)} {p.name}</h3>
-                <div class="tags"><span class={`tag${p.open ? ' open' : ''}`}>{p.status}</span>{near(p) && <span class="tag near">{p.km!.toFixed(1)} km</span>}{isNew(p) && <span class="tag new">New</span>}</div></div>
-            </button>))}
-        </div>
-      </div>
-    </section>
-
-    <div class="two">
-      <section id="dates" aria-labelledby="h-dates">
-        <div class="sechead"><h2 id="h-dates">📅 Coming up</h2><a class="small" href="/events.ics">Subscribe in your calendar</a></div>
-        <div class="panel">
-          {groups.length === 0 && <p class="small">Nothing scheduled yet.</p>}
-          {groups.map((g) => (<>
-            <div class="mono group">{g.name}</div>
-            {g.items.map((e) => { const p = e.ref ? byId[e.ref] : null; return (
-              <div class="row" data-date={e.date}>
-                <div class="date">{e.end_label ? <><b>{e.end_label.split(' ')[0]}</b>{e.end_label.split(' ').slice(1).join(' ')}</> : <><b>{fmtShort(e.date)}</b>{fmtDow(e.date)}{e.time && <><br />{e.time}</>}</>}</div>
-                <div class="irow"><span class="ico">{p ? iconOf(p) : KINDS[e.kind]?.icon}</span><div>
-                  <span class={`kind k-${e.kind}`}>{KINDS[e.kind]?.label || e.kind}</span>
-                  {p ? <button class="open-item" data-open={p.id}>{e.title}</button> : e.link ? <a href={e.link} target="_blank" rel="noopener">{e.title} ↗</a> : e.title}
-                  {e.where && <div class="small">{e.where}</div>}
-                </div></div>
-              </div>); })}
-          </>))}
-        </div>
-      </section>
-      <section id="decisions" aria-labelledby="h-dec">
-        <div class="sechead"><h2 id="h-dec">🏛️ Key decisions</h2><span class="mono">council and state</span></div>
-        <div class="panel">
-          <div class="mono group">Coming up</div>
-          {due.map((p) => <div class="row"><div class="date"><b>{decLabel(p.decision!.date, 'TBC')}</b>{p.decision!.date ? p.decision!.date.slice(0, 4) : ''}</div><div class="irow"><span class="ico">{iconOf(p)}</span><button class="open-item" data-open={p.id}>{p.decision!.text}</button></div></div>)}
-          <div class="mono group" style="margin-top:14px">Recently decided</div>
-          {made.map((p) => <div class="row"><div class="date"><b>{decLabel(p.decision!.date, 'Done')}</b>{p.decision!.date ? p.decision!.date.slice(0, 4) : ''}</div><div class="irow"><span class="ico">{iconOf(p)}</span><button class="open-item" data-open={p.id}>{p.decision!.text}</button></div></div>)}
-        </div>
-      </section>
-    </div>
-
-    <section id="map" aria-labelledby="h-map">
-      <div class="sechead"><h2 id="h-map">🗺️ Map</h2><span class="mono">{located.length} places · rings at 1, 2 and 3 km</span></div>
-      <div class="toggles" id="map-toggles" role="group" aria-label="Show on map">
-        {Object.entries(CATS).filter(([k]) => located.some((p) => p.cat === k)).map(([k, c]) => (
-          <button class="tog" data-cat={k} aria-pressed="true"><i style={`background:${c.colour}`}></i>{c.icon} {c.name}</button>))}
-      </div>
-      <div class="mapwrap">
-        <div id="leaflet-map" role="region" aria-label="Interactive map of items around Ryan St"></div>
-        <aside class="mapside" aria-label="Places in view">
-          <div class="head"><span class="mono" id="inview">In view</span><input class="search" id="map-search" type="search" placeholder="Find a place or street" aria-label="Find a place on the map" /></div>
-          <div class="maplist" id="maplist"></div>
-        </aside>
-      </div>
-    </section>
-
-    <section id="transport" aria-labelledby="h-transport">
-      <div class="sechead"><h2 id="h-transport">🚋 Getting around</h2><span class="mono" id="live-meta">Route 19 · Upfield line · local buses</span></div>
-      <div class="two" style="gap:20px">
-        <div class="panel">
-          <div class="mono group">Live disruptions</div>
-          <div id="live" aria-live="polite"><p class="small">Checking Transport Victoria for disruptions…</p></div>
-        </div>
-        <div class="panel">
-          <div class="mono group">Planned works and transport projects</div>
-          {works.length === 0 && transportProjects.length === 0 && <p class="small">No planned works listed for the next few weeks.</p>}
-          {works.map((e) => (
-            <div class="row"><div class="date"><b>{fmtShort(e.date)}</b>{fmtDow(e.date)}</div>
-              <div class="irow"><span class="ico">🚧</span><div>{e.link ? <a href={e.link} target="_blank" rel="noopener">{e.title} ↗</a> : e.title}{e.where && <div class="small">{e.where}</div>}</div></div></div>))}
-          {transportProjects.map((p) => (
-            <div class="row"><div class="date"><b>{p.icon}</b></div><div class="irow"><button class="open-item" data-open={p.id}>{p.name}</button></div></div>))}
-          <p class="small" style="margin-top:12px">Live status: <a href="https://yarratrams.com.au/service-changes" target="_blank" rel="noopener">Yarra Trams</a> · <a href="https://www.metrotrains.com.au/lines/upfield/" target="_blank" rel="noopener">Upfield line</a> · <a href="https://www.ptv.vic.gov.au/disruptions/" target="_blank" rel="noopener">PTV disruptions</a> · <a href="https://traffic.vicroads.vic.gov.au/" target="_blank" rel="noopener">VicTraffic</a></p>
-        </div>
-      </div>
-    </section>
-
-    <section id="rules" aria-labelledby="h-rules">
-      <div class="sechead"><h2 id="h-rules">📜 Rules, services and policy</h2><span class="mono">council-wide, no single location</span></div>
-      <div class="list">
-        {noLoc.map((p) => (
-          <button class="card" data-open={p.id}>
-            {imgOf(p) ? <img class="cimg" src={imgOf(p)} alt="" loading="lazy" /> : <div class="cph" style={`background:color-mix(in srgb, ${CATS[p.cat].colour} 18%, transparent)`}>{iconOf(p)}</div>}
-            <div class="cb"><div class="top"><h3>{iconOf(p)} {p.name}</h3></div>
-              <div class="tags"><span class={`tag${p.open ? ' open' : ''}`}>{p.status}</span>{isNew(p) && <span class="tag new">New</span>}</div>
-              <p>{p.what}</p></div>
+    <section id="nearby" class="sec" aria-labelledby="h-nearby">
+      <div class="sec-head"><h2 id="h-nearby" class="h2">New near you</h2><span class="cap">Closest first · distance from Ryan St</span></div>
+      <div class="near-grid">
+        {nearby.map((p) => (
+          <button class="unbtn ncard" data-open={p.id}>
+            <div class="media">
+              {imgOf(p) ? <img class="washed" src={imgOf(p)} alt="" loading="lazy" /> : <div class="ph" style={`background:color-mix(in srgb, ${COL[p.cat]} 30%, var(--color-bg))`}></div>}
+              {p.km != null && <span class="tag km-pill">{kmLabel(p)}</span>}
+            </div>
+            <div class="body"><span class="kicker">{p.cat === 'dev' ? 'Planning application' : SHORT[p.cat]}</span><h3>{p.name}</h3><span class="st">{p.status}</span></div>
           </button>))}
       </div>
     </section>
 
-    <section id="all" aria-labelledby="h-all">
-      <div class="sechead"><h2 id="h-all">📋 Everything we're tracking</h2><span class="mono" id="count">{projects.length} items</span></div>
+    <section id="dates" class="sec dates" aria-labelledby="h-dates">
+      <div class="agenda">
+        <div class="sec-head"><h2 id="h-dates" class="h2">Coming up</h2><a class="btn btn-ghost" href="/events.ics" style="min-height:44px"><Fragment set:html={icon('calendar')} />Add to my calendar</a></div>
+        <div class="chips" role="group" aria-label="Filter dates" id="agenda-chips">
+          {[['all', 'All dates'], ['say', 'Have your say'], ['decision', 'Decisions'], ['home', 'Bins & works'], ['event', 'Events']].map(([k, l], i) => <button class="chip" data-af={k} aria-pressed={String(i === 0)}>{l}</button>)}
+        </div>
+        <div id="agenda">
+          {agenda.map((m) => (
+            <div class="month"><h3>{m.name}</h3>
+              {m.items.map((e) => (
+                <button class="unbtn arow" data-open={e.ref || ''} data-date={e.date} data-ag={AGROUP[e.kind] || 'all'} data-link={!e.ref && e.link ? e.link : ''}>
+                  <span class="disc">{e.end_label ? <><b>—</b><span>TBC</span></> : <><b>{pd(e.date).getUTCDate()}</b><span class="dow" data-date={e.date}>{e.date === today ? 'Today' : fmtDow(e.date)}</span></>}</span>
+                  <span class="ainfo">
+                    <span class="line"><span class={`tag ${KIND[e.kind]?.[1] || 'tag-neutral'}`} style="font-weight:600">{KIND[e.kind]?.[0] || e.kind}</span>{e.time && <span class="meta">{e.time}</span>}{e.end_label && <span class="meta">{e.end_label}</span>}</span>
+                    <span class="t">{e.title}</span>
+                    {e.where && <span class="meta">{e.where}</span>}
+                  </span>
+                </button>))}
+            </div>))}
+          <p class="empty" id="agenda-empty" hidden>Nothing in this category right now.</p>
+        </div>
+      </div>
+      <aside class="aside">
+        <div class="panel surface transit" id="transport">
+          <h3>Trams and trains</h3>
+          <p class="meta" id="live-meta" style="margin:0">Route 19, the Upfield line and local buses</p>
+          <div id="live" aria-live="polite"><p class="meta" style="margin:0">Checking Transport Victoria…</p></div>
+        </div>
+        <div class="panel decided">
+          <h3>Recently decided</h3>
+          {made.map((p) => <button class="unbtn drow" data-open={p.id}><span class="w">{p.decision!.date ? (p.decision!.date.length === 7 ? fmtMonth(p.decision!.date) : fmtDate(p.decision!.date)) : 'Done'}</span><span class="x">{p.decision!.text}</span></button>)}
+        </div>
+        <div class="panel surface">
+          <h3>Live elsewhere</h3>
+          <p style="margin:0;font-size:15px;color:var(--color-neutral-800)">This page updates weekly. For things that change by the minute:</p>
+          <div>{liveLinks.map((l) => <a class="lrow" href={l.url} target="_blank" rel="noopener">{l.label}<Fragment set:html={icon('arrow-up-right', 16)} /></a>)}</div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="map" class="sec map-sec" aria-labelledby="h-map">
+      <div class="sec-head"><h2 id="h-map" class="h2">On the map</h2><span class="cap">{located.length} places · rings at 1, 2 and 3 km</span></div>
+      <div class="chips" role="group" aria-label="Show on map" id="map-toggles">
+        {cats.map((k) => <button class="chip tog" data-cat={k} aria-pressed="true"><i class="dot" style={`background:${COL[k]}`}></i>{SHORT[k]}</button>)}
+      </div>
+      <div class="seg only-mobile" role="group" aria-label="View" id="map-views" style="align-self:flex-start">
+        <button class="seg-btn" data-view="map" aria-pressed="true">Map</button><button class="seg-btn" data-view="list" aria-pressed="false">List (<span id="list-n">0</span>)</button>
+      </div>
+      <div class="mapwrap" id="mapwrap" data-view="map">
+        <div class="mappane">
+          <div id="leaflet-map" role="region" aria-label="Map of items around Ryan St"></div>
+          <button class="unbtn guard" id="guard"><span class="btn btn-primary">Tap to explore the map</span></button>
+        </div>
+        <div class="maplist">
+          <div class="head"><input class="input" id="map-search" type="search" placeholder="Find a place or street" aria-label="Find a place on the map" /><span class="meta" id="inview" style="font-size:13px;padding-left:4px"></span></div>
+          <div class="scroll" id="maplist"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="all" class="sec all-sec" aria-labelledby="h-all">
+      <div class="sec-head"><h2 id="h-all" class="h2">Everything we're tracking</h2><span class="cap" id="count">{projects.length} of {projects.length}</span></div>
       <div class="controls">
-        <input class="search" id="q" type="search" placeholder="Search address, project or topic" aria-label="Search" />
-        <div class="seg" role="group" aria-label="Filter">
-          <button data-f="all" aria-pressed="true">All</button>
-          <button data-f="near" aria-pressed="false">Within 2 km</button>
-          <button data-f="kids" aria-pressed="false">For families</button>
-          <button data-f="open" aria-pressed="false">Open for feedback</button>
-          <button data-f="new" aria-pressed="false">New</button>
-        </div>
-        <select class="search" id="cat" aria-label="Category"><option value="">All categories</option>{Object.entries(CATS).map(([k, c]) => <option value={k}>{c.icon} {c.name}</option>)}</select>
-        <select class="search" id="sort" aria-label="Sort"><option value="cat">By category</option><option value="near">Nearest first</option><option value="new">Newest first</option></select>
+        <div class="search"><Fragment set:html={icon('search', 18, 'var(--color-neutral-700)')} /><input class="input" id="q" type="search" placeholder="Search an address, park or topic" aria-label="Search" /></div>
+        <select class="input sort" id="sort" aria-label="Sort"><option value="near">Nearest first</option><option value="new">Newest first</option><option value="cat">By topic</option></select>
       </div>
-      <div class="list" id="register">
-        {all.map((p) => (
-          <button class="card" data-open={p.id} data-id={p.id} data-cat={p.cat} data-km={p.km ?? ''} data-seen={p.first_seen || ''} data-open-fb={p.open ? '1' : ''} data-new={isNew(p) ? '1' : ''} data-text={`${p.name} ${p.sub || ''} ${p.what} ${p.status}`.toLowerCase()}>
-            {imgOf(p) ? <img class="cimg" src={imgOf(p)} alt="" loading="lazy" /> : <div class="cph" style={`background:color-mix(in srgb, ${CATS[p.cat].colour} 18%, transparent)`}>{iconOf(p)}</div>}
-            <div class="cb"><div class="top"><h3>{iconOf(p)} {p.name}</h3><span class="dist">{p.km != null ? `${p.km.toFixed(1)} km` : ''}</span></div>
-              <div class="tags"><span class="tag">{p.sub}</span><span class={`tag${p.open ? ' open' : ''}`}>{p.status}</span>{isNew(p) && <span class="tag new">New</span>}</div>
-              <p>{p.what}</p></div>
+      <div class="chips" role="group" aria-label="Filter" id="reg-chips">
+        {[['all', 'All'], ['open', 'Open for feedback'], ['near', 'Within 2 km'], ['kids', 'For families'], ['dev', 'Planning'], ['wide', 'Council-wide'], ['new', 'New']].map(([k, l], i) => <button class="chip" data-rf={k} aria-pressed={String(i === 0)}>{l}</button>)}
+      </div>
+      <div class="reg" id="register">
+        {reg.map((p) => (
+          <button class="unbtn pcard" data-open={p.id} data-id={p.id} data-text={`${p.name} ${p.sub || ''} ${p.what} ${p.status}`.toLowerCase()}>
+            {p.image_src ? <img class="washed" src={resized(p.image_src, 160, 160)} alt="" loading="lazy" /> : <span class="ph" style={`background:color-mix(in srgb, ${COL[p.cat]} 30%, var(--color-bg))`}></span>}
+            <span class="b">
+              <span class="m"><span>{SHORT[p.cat]}</span><span>{kmLabel(p)}</span></span>
+              <span class="nm">{p.name}</span>
+              <span class="tags"><span class={`tag ${p.open ? 'tag-accent' : 'tag-neutral'}`}>{p.status}</span>{isNew(p) && <span class="tag tag-outline">New</span>}</span>
+            </span>
           </button>))}
       </div>
-      <p class="empty" id="empty" hidden>Nothing matches. Try clearing the search or filters.</p>
+      <button class="btn btn-secondary more" id="more" hidden>Show all <span id="more-n"></span></button>
+      <p class="empty" id="empty" hidden>Nothing matches. Try another word or clear the filters.</p>
     </section>
   </main>
 
-  <footer class="wrap">
-    <p>A neighbour-run summary, not an official council or government page. Check each item's source for official details and how to have your say or object. Only larger planning applications are listed (three or more homes or lots, new uses, venues and non-residential works). For emergencies, use the VicEmergency app with a watch zone: this site updates weekly.</p>
-    <p>{data.image_credit} Map data © OpenStreetMap contributors.</p>
+  <footer class="site-footer">
+    <div class="subcard">
+      <h2>Get it every Saturday</h2>
+      <p>One short email: what's new, what's closing, and what council decided. Unsubscribe any time.</p>
+      <a class="btn" href={subscribe} target="_blank" rel="noopener">Subscribe to the weekly email</a>
+    </div>
+    <div class="fine">
+      <p>A neighbour-run summary, not an official council or government page. Check each item's source for official details and how to have your say or object. Only larger planning applications are listed (three or more homes or lots, new uses, venues and non-residential works).</p>
+      <p>For emergencies, use the VicEmergency app with a watch zone.</p>
+      <p style="color:var(--color-neutral-700)">Updated {fmtDate(updated)}. {data.image_credit} Map data © OpenStreetMap contributors. Transport data: Transport Victoria open data.</p>
+    </div>
   </footer>
 
-  <div class="drawer" id="drawer" aria-hidden="true">
+  <nav class="tabbar" aria-label="Sections">
+    <a href="#this-week" data-tab="this-week"><Fragment set:html={icon('house', 22)} />This week</a>
+    <a href="#dates" data-tab="dates"><Fragment set:html={icon('calendar', 22)} />Dates</a>
+    <a href="#map" data-tab="map"><Fragment set:html={icon('map', 22)} />Map</a>
+    <a href="#all" data-tab="all"><Fragment set:html={icon('search', 22)} />Search</a>
+  </nav>
+
+  <div class="sheet-root" id="sheet" aria-hidden="true">
     <div class="scrim" data-close></div>
     <article class="sheet" role="dialog" aria-modal="true" aria-labelledby="d-title" tabindex="-1">
-      <button class="close" data-close aria-label="Close">×</button>
-      <div id="d-body"></div>
+      <div class="grab"></div>
+      <div class="sbody" id="sbody"></div>
+      <div class="sbar" id="sbar"></div>
     </article>
   </div>
   <div class="toast" id="toast" role="status"></div>

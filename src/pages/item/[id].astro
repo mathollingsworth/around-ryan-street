@@ -1,25 +1,38 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { projects, CATS, iconOf, imgOf, linkOf, labelOf } from '../../lib/data';
+import { projects, SHORT, imgOf, linkOf, labelOf, kmLabel, fmtDate, SHOW_WHY } from '../../lib/data';
+import { icon } from '../../lib/icons';
 export function getStaticPaths() {
   return projects.map((p) => ({ params: { id: p.id }, props: { p } }));
 }
 const { p } = Astro.props;
 const img = imgOf(p);
+const cta = p.open ? 'Have your say' : labelOf(p) === 'Council project page' ? 'Official page' : labelOf(p);
 ---
 <Base title={`${p.name} · Around Ryan St`} description={p.what} image={img || undefined} path={`/item/${p.id}`}>
-  <header class="nav"><div class="wrap"><a class="brand" href="/">← Around Ryan St</a></div></header>
-  <main class="wrap" style="max-width:760px;padding-top:24px;padding-bottom:40px">
-    {img && <img src={img} alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px" />}
-    <div class="mono" style="margin-top:16px">{CATS[p.cat].icon} {CATS[p.cat].name}{p.sub ? ` · ${p.sub}` : ''}</div>
-    <h1 style="font-size:32px;margin:6px 0 10px">{iconOf(p)} {p.name}</h1>
-    <div class="tags"><span class={`tag${p.open ? ' open' : ''}`}>{p.status}</span>{p.km != null && <span class="tag near">{p.km.toFixed(1)} km from Ryan St</span>}</div>
-    <p>{p.what}</p>
-    <p><strong>When:</strong> {p.when}</p>
-    {p.decision && <p><strong>Decision:</strong> {p.decision.text}</p>}
-    <p style="display:flex;gap:8px;flex-wrap:wrap">
-      <a class="btn primary" href={linkOf(p)} target="_blank" rel="noopener">{labelOf(p)} ↗</a>
-      <a class="btn" href={`/?item=${p.id}${p.lat != null ? '#map' : ''}`}>See it on the briefing</a>
-    </p>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/"><span class="brand-mark" set:html={icon('house', 18, 'var(--color-bg)')} /><span class="brand-name">Around Ryan St</span></a>
+    </div>
+  </header>
+  <main class="item-page">
+    <span class="kicker">{SHORT[p.cat]}{p.sub ? ` · ${p.sub}` : ''}</span>
+    <h1>{p.name}</h1>
+    <div class="tags">
+      <span class={`tag ${p.open ? 'tag-accent' : 'tag-neutral'}`}>{p.status}</span>
+      {p.km != null && <span class={`tag ${p.km <= 2.1 ? 'tag-accent-2' : 'tag-neutral'}`}>{kmLabel(p)} from Ryan St</span>}
+    </div>
+    {img && <img class="washed" src={img} alt="" />}
+    {SHOW_WHY && p.why && <div class="why"><span>Why it matters here</span><p>{p.why}</p></div>}
+    <p class="what">{p.what}</p>
+    <dl class="item-dl" style="margin:0;display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px 16px">
+      <dt class="meta" style="font-weight:600">When</dt><dd style="margin:0">{p.when}</dd>
+      {p.decision && <><dt class="meta" style="font-weight:600">{p.decision.state === 'made' ? 'Decided' : 'Decision'}</dt><dd style="margin:0">{p.decision.text}</dd></>}
+      {p.first_seen && <><dt class="meta" style="font-weight:600">Tracked</dt><dd style="margin:0">Since {fmtDate(p.first_seen)}</dd></>}
+    </dl>
+    <div class="actions">
+      <a class="btn btn-primary" href={linkOf(p)} target="_blank" rel="noopener">{cta}<Fragment set:html={icon('arrow-up-right', 16)} /></a>
+      <a class="btn btn-secondary" href={`/?item=${p.id}`}>See it on the briefing</a>
+    </div>
   </main>
 </Base>
