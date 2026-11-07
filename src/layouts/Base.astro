@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
 interface Props { title: string; description: string; image?: string; path?: string }
 import { OG_DEFAULT } from '../lib/data';
 const { title, description, image = OG_DEFAULT, path = '/' } = Astro.props;
@@ -28,5 +29,6 @@ const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
 </head>
 <body>
   <slot />
+  <Analytics />
 </body>
 </html>
