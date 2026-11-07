@@ -1,0 +1,16 @@
+{
+  "name": "around-ryan-st",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/check-data.mjs && astro build",
+    "preview": "astro preview",
+    "check-data": "node scripts/check-data.mjs"
+  },
+  "dependencies": {
+    "astro": "5.18.2",
+    "leaflet": "1.9.4",
+    "leaflet.markercluster": "1.5.3"
+  }
+}

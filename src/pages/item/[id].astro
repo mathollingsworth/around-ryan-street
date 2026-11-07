@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import { projects, CATS, iconOf, imgOf, linkOf, labelOf } from '../../lib/data';
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { id: p.id }, props: { p } }));
+}
+const { p } = Astro.props;
+const img = imgOf(p);
+---
+<Base title={`${p.name} · Around Ryan St`} description={p.what} image={img || undefined} path={`/item/${p.id}`}>
+  <header class="nav"><div class="wrap"><a class="brand" href="/">← Around Ryan St</a></div></header>
+  <main class="wrap" style="max-width:760px;padding-top:24px;padding-bottom:40px">
+    {img && <img src={img} alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px" />}
+    <div class="mono" style="margin-top:16px">{CATS[p.cat].icon} {CATS[p.cat].name}{p.sub ? ` · ${p.sub}` : ''}</div>
+    <h1 style="font-size:32px;margin:6px 0 10px">{iconOf(p)} {p.name}</h1>
+    <div class="tags"><span class={`tag${p.open ? ' open' : ''}`}>{p.status}</span>{p.km != null && <span class="tag near">{p.km.toFixed(1)} km from Ryan St</span>}</div>
+    <p>{p.what}</p>
+    <p><strong>When:</strong> {p.when}</p>
+    {p.decision && <p><strong>Decision:</strong> {p.decision.text}</p>}
+    <p style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn primary" href={linkOf(p)} target="_blank" rel="noopener">{labelOf(p)} ↗</a>
+      <a class="btn" href={`/?item=${p.id}${p.lat != null ? '#map' : ''}`}>See it on the briefing</a>
+    </p>
+  </main>
+</Base>
