@@ -105,16 +105,18 @@ const description = 'A neighbour-run weekly briefing on council, state and devel
             <p class="meta" id="live-meta" style="margin:0">Route 19, the Upfield line and local buses</p>
             <div id="live" aria-live="polite"><p class="meta" style="margin:0">Checking Transport Victoria…</p></div>
           </div>
-          <div class="panel decided">
-            <h3>Recently decided</h3>
-            {made.map((p) => <button class="unbtn drow" data-open={p.id}><span class="w">{p.decision!.date ? (p.decision!.date.length === 7 ? fmtMonth(p.decision!.date) : fmtDate(p.decision!.date)) : 'Done'}</span><span class="x">{p.decision!.text}</span></button>)}
-          </div>
-          <div class="panel surface">
-            <h3>Live elsewhere</h3>
-            <p style="margin:0;font-size:15px;color:var(--color-neutral-800)">This page updates weekly. For things that change by the minute:</p>
-            <div>{liveLinks.map((l) => <a class="lrow" href={l.url} target="_blank" rel="noopener">{l.label}<Fragment set:html={icon('arrow-up-right', 16)} /></a>)}</div>
-          </div>
         </aside>
+      </div>
+      <div class="hero-row">
+        <div class="panel decided">
+          <h3>Recently decided</h3>
+          {made.map((p) => <button class="unbtn drow" data-open={p.id}><span class="w">{p.decision!.date ? (p.decision!.date.length === 7 ? fmtMonth(p.decision!.date) : fmtDate(p.decision!.date)) : 'Done'}</span><span class="x">{p.decision!.text}</span></button>)}
+        </div>
+        <div class="panel surface">
+          <h3>Live elsewhere</h3>
+          <p style="margin:0;font-size:15px;color:var(--color-neutral-800)">This page updates weekly. For things that change by the minute:</p>
+          <div>{liveLinks.map((l) => <a class="lrow" href={l.url} target="_blank" rel="noopener">{l.label}<Fragment set:html={icon('arrow-up-right', 16)} /></a>)}</div>
+        </div>
       </div>
     </section>
 

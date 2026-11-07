@@ -53,6 +53,7 @@ p{text-wrap:pretty}
 .summary strong{font-weight:700}
 .left{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;background:var(--color-neutral-100);color:var(--color-text)}
 .left.urgent{background:var(--color-accent);color:var(--color-bg)}
+.hero-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:start}
 .ag-more{align-self:flex-start;min-height:44px;padding:0 18px}
 
 /* New near you */
