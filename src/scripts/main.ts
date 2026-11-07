@@ -226,3 +226,27 @@ const Reset = L.Control.extend({
 });
 new Reset({ position: 'topleft' }).addTo(map);
 refreshMarkers();
+
+/* ---------- Live transport disruptions (from /api/disruptions) ---------- */
+(async () => {
+  const el = document.getElementById('live'); if (!el) return;
+  const fmt = (s: string | null) => s ? new Date(s).toLocaleString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Australia/Melbourne' }) : '';
+  const icon = (m: string) => m === 'tram' ? '🚋' : m === 'train' ? '🚆' : '🚌';
+  try {
+    const r = await fetch('/api/disruptions');
+    if (!r.ok) throw new Error(String(r.status));
+    const d = await r.json();
+    const meta = document.getElementById('live-meta');
+    if (meta) meta.textContent = `Checked ${fmt(d.fetched_at)}`;
+    if (!d.alerts.length) {
+      el.innerHTML = '<p>✅ No current disruptions on Route 19, the Upfield line or local buses.</p>';
+      return;
+    }
+    el.innerHTML = d.alerts.map((a: any) => `<div class="row"><div class="date"><b>${a.active ? 'Now' : 'From'}</b>${a.active ? (a.ends ? 'until ' + esc(fmt(a.ends)) : '') : esc(fmt(a.starts))}</div>
+      <div class="irow"><span class="ico">${icon(a.mode)}</span><div>${a.lines.length ? `<span class="kind k-works">${esc(a.lines.join(', '))}</span>` : ''}${a.effect ? `<span class="kind k-closes">${esc(a.effect)}</span>` : ''}
+      <div>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.header || 'Service change')} ↗</a>` : esc(a.header || 'Service change')}</div>
+      ${a.description ? `<details><summary class="small">Details</summary><p class="small">${esc(a.description)}</p></details>` : ''}</div></div></div>`).join('');
+  } catch {
+    el.innerHTML = '<p class="small">Live disruptions are unavailable right now. Check <a href="https://www.ptv.vic.gov.au/disruptions/" target="_blank" rel="noopener">PTV disruptions</a>.</p>';
+  }
+})();

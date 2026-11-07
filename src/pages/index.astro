@@ -20,6 +20,8 @@ const groups = [
 ].filter((g) => g.items.length);
 
 const decLabel = (d: string | undefined, dflt: string) => !d ? dflt : d.length === 7 ? fmtMonth(d).split(' ')[0] : fmtShort(d);
+const works = upcoming.filter((e) => e.kind === 'works');
+const transportProjects = projects.filter((p) => ['🚋', '🚆', '🚧'].includes(p.icon || '') || /upfield|route 19|tram|level crossing/i.test(p.name));
 const decs = projects.filter((p) => p.decision);
 const due = decs.filter((p) => p.decision!.state === 'due').sort((a, b) => (a.decision!.date || '9').localeCompare(b.decision!.date || '9'));
 const made = decs.filter((p) => p.decision!.state === 'made').sort((a, b) => (b.decision!.date || '0').localeCompare(a.decision!.date || '0'));
@@ -48,6 +50,7 @@ const description = 'A neighbour-run weekly briefing on council, state and devel
         <a href="#dates">Dates</a>
         <a href="#decisions">Decisions</a>
         <a href="#map">Map</a>
+        <a href="#transport">Transport</a>
         <a href="#rules">Rules &amp; policy</a>
         <a href="#all">Everything</a>
       </nav>
@@ -146,6 +149,26 @@ const description = 'A neighbour-run weekly briefing on council, state and devel
           <div class="head"><span class="mono" id="inview">In view</span><input class="search" id="map-search" type="search" placeholder="Find a place or street" aria-label="Find a place on the map" /></div>
           <div class="maplist" id="maplist"></div>
         </aside>
+      </div>
+    </section>
+
+    <section id="transport" aria-labelledby="h-transport">
+      <div class="sechead"><h2 id="h-transport">🚋 Getting around</h2><span class="mono" id="live-meta">Route 19 · Upfield line · local buses</span></div>
+      <div class="two" style="gap:20px">
+        <div class="panel">
+          <div class="mono group">Live disruptions</div>
+          <div id="live" aria-live="polite"><p class="small">Checking Transport Victoria for disruptions…</p></div>
+        </div>
+        <div class="panel">
+          <div class="mono group">Planned works and transport projects</div>
+          {works.length === 0 && transportProjects.length === 0 && <p class="small">No planned works listed for the next few weeks.</p>}
+          {works.map((e) => (
+            <div class="row"><div class="date"><b>{fmtShort(e.date)}</b>{fmtDow(e.date)}</div>
+              <div class="irow"><span class="ico">🚧</span><div>{e.link ? <a href={e.link} target="_blank" rel="noopener">{e.title} ↗</a> : e.title}{e.where && <div class="small">{e.where}</div>}</div></div></div>))}
+          {transportProjects.map((p) => (
+            <div class="row"><div class="date"><b>{p.icon}</b></div><div class="irow"><button class="open-item" data-open={p.id}>{p.name}</button></div></div>))}
+          <p class="small" style="margin-top:12px">Live status: <a href="https://yarratrams.com.au/service-changes" target="_blank" rel="noopener">Yarra Trams</a> · <a href="https://www.metrotrains.com.au/lines/upfield/" target="_blank" rel="noopener">Upfield line</a> · <a href="https://www.ptv.vic.gov.au/disruptions/" target="_blank" rel="noopener">PTV disruptions</a> · <a href="https://traffic.vicroads.vic.gov.au/" target="_blank" rel="noopener">VicTraffic</a></p>
+        </div>
       </div>
     </section>
 

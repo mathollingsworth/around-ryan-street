@@ -17,6 +17,7 @@ Live at https://ryanstreet.vercel.app
 | `/` | The briefing: this week, coming up, decisions, interactive map, rules and policy, full searchable list |
 | `/?item=<id>` | Opens an item's detail panel (shareable) |
 | `/item/<id>` | Stand-alone page per item, with a proper link preview for WhatsApp |
+| `/api/disruptions` | Live tram, Upfield line and local bus disruptions (Vercel function, cached 5 min) |
 | `/events.ics` | Calendar feed of dated items (subscribe in Google or Apple Calendar) |
 
 ## Data model (`src/data/projects.json`)
@@ -33,3 +34,9 @@ npm install
 npm run dev      # http://localhost:4321
 npm run build    # runs the data check, then builds to dist/
 ```
+
+## Environment variables (Vercel)
+
+| Name | What |
+|---|---|
+| `TRANSPORT_VIC_KEY` | Transport Victoria open data API key (opendata.transport.vic.gov.au → My Account → Profile → API tokens). Used only by `/api/disruptions`, never sent to the browser. |
