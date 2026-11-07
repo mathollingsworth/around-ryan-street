@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import { icon } from '../lib/icons';
+import { icon, CAT_ICON } from '../lib/icons';
 
 type P = {
   id: string; cat: string; name: string; sub?: string; lat?: number; lon?: number; km?: number | null; open: boolean;
@@ -32,28 +32,36 @@ let toastT: number;
 function toast(msg: string) { toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT = window.setTimeout(() => toastEl.classList.remove('show'), 1800); }
 
 /* ---------- Keep dates honest between weekly builds ---------- */
-document.querySelectorAll<HTMLElement>('.say-row[data-closes]').forEach((row) => {
-  const dt = row.dataset.closes; if (!dt) return;
-  const n = dayDiff(melbToday, dt);
-  const pill = row.querySelector('.left')!;
-  pill.textContent = n <= 0 ? 'Today' : n === 1 ? '1 day' : `${n} days`;
+document.querySelectorAll<HTMLElement>('.left[data-closes]').forEach((pill) => {
+  const n = dayDiff(melbToday, pill.dataset.closes!);
+  pill.textContent = n <= 0 ? 'closes today' : n === 1 ? '1 day left' : `${n} days left`;
   pill.classList.toggle('urgent', n <= 7);
-  if (n < 0) row.remove();
 });
 document.querySelectorAll<HTMLElement>('.dow[data-date]').forEach((el) => { if (el.dataset.date === melbToday) el.textContent = 'Today'; });
 
 /* ---------- Agenda filter ---------- */
 const agendaRows = [...document.querySelectorAll<HTMLElement>('#agenda .arow')];
 agendaRows.forEach((r) => { if (r.dataset.date! < melbToday) r.remove(); });
+const AG_LIMIT = 6;
+let agExpanded = false, agFilter = 'all';
+const agMore = document.getElementById('agenda-more') as HTMLButtonElement;
 function filterAgenda(f: string) {
+  agFilter = f;
   let n = 0;
   document.querySelectorAll<HTMLElement>('#agenda .month').forEach((m) => {
     let shown = 0;
-    m.querySelectorAll<HTMLElement>('.arow').forEach((r) => { const ok = f === 'all' || r.dataset.ag === f; r.hidden = !ok; if (ok) shown++; });
-    m.hidden = shown === 0; n += shown;
+    m.querySelectorAll<HTMLElement>('.arow').forEach((r) => {
+      const match = f === 'all' || r.dataset.ag === f;
+      const ok = match && (agExpanded || n < AG_LIMIT);
+      r.hidden = !ok; if (ok) shown++; if (match) n++;
+    });
+    m.hidden = shown === 0;
   });
   document.getElementById('agenda-empty')!.hidden = n > 0;
+  agMore.hidden = agExpanded || n <= AG_LIMIT;
+  agMore.textContent = `Show all ${n} dates`;
 }
+agMore.addEventListener('click', () => { agExpanded = true; filterAgenda(agFilter); });
 document.querySelectorAll<HTMLButtonElement>('#agenda-chips .chip').forEach((b) => b.addEventListener('click', () => {
   document.querySelectorAll('#agenda-chips .chip').forEach((x) => x.setAttribute('aria-pressed', 'false'));
   b.setAttribute('aria-pressed', 'true'); filterAgenda(b.dataset.af!);
@@ -192,7 +200,7 @@ map.addLayer(cluster);
 const markers: Record<string, L.Marker> = {};
 const located = P.filter((p) => p.lat != null && p.lon != null);
 for (const p of located) {
-  const m = L.marker([p.lat!, p.lon!], { icon: L.divIcon({ className: '', html: `<div class="pin" data-pin="${p.id}" style="background:${COL[p.cat]}"></div>`, iconSize: [20, 20], iconAnchor: [10, 10] }), title: p.name, riseOnHover: true });
+  const m = L.marker([p.lat!, p.lon!], { icon: L.divIcon({ className: '', html: `<div class="pin" data-pin="${p.id}" style="background:${COL[p.cat]}">${icon(CAT_ICON[p.cat] || 'map', 15, '#fff', '')}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }), title: p.name, riseOnHover: true });
   m.on('click', () => openItem(p.id));
   markers[p.id] = m;
 }

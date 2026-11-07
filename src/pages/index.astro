@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { data, projects, byId, events, whatsNew, liveLinks, updated, CATS, SHORT, COL, imgOf, resized, kmLabel, fmtDate, fmtShort, fmtDow, fmtMonth, pd, HOME } from '../lib/data';
-import { icon } from '../lib/icons';
+import { icon, CAT_ICON } from '../lib/icons';
 
 // Server render uses the build date; the client script re-checks "today" so day counts stay right between weekly builds.
 const today = new Date().toISOString().slice(0, 10);
@@ -13,12 +13,8 @@ const subscribe = data.subscribe_url || 'https://buttondown.com/ryanstreet';
 // 1. Weekly summary
 const summary = (whatsNew.summary || []).map((s: string) => { const k = s.indexOf(':'); return k > 0 ? { lead: s.slice(0, k + 1), rest: s.slice(k + 1).trim() } : { lead: '', rest: s }; });
 
-// 2. Have your say: open projects, soonest closing first
 const upcoming = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-const closesBy: Record<string, string> = {};
-upcoming.filter((e) => e.kind === 'closes' && e.ref).forEach((e) => { if (!closesBy[e.ref!]) closesBy[e.ref!] = e.date; });
-const closing = projects.filter((p) => p.open).sort((a, b) => (closesBy[a.id] || '9').localeCompare(closesBy[b.id] || '9'));
-const leftLabel = (n: number) => (n <= 0 ? 'Today' : n === 1 ? '1 day' : `${n} days`);
+const leftLabel = (n: number) => (n <= 0 ? 'closes today' : n === 1 ? '1 day left' : `${n} days left`);
 
 // 3. New near you
 const nearby = [...new Set(whatsNew.ids || [])].map((id) => byId[id]).filter(Boolean).sort((a, b) => (a.km ?? 99) - (b.km ?? 99));
@@ -69,24 +65,57 @@ const description = 'A neighbour-run weekly briefing on council, state and devel
   </header>
 
   <main class="wrap">
-    <section id="this-week" class="week" aria-labelledby="h-week">
-      <div class="week-l">
+    <section id="this-week" class="hero" aria-labelledby="h-week">
+      <div class="hero-head">
         <div class="week-meta"><span class="tag tag-accent-2 tag-strong">Week of {fmtDate(whatsNew.week || updated)}</span><span class="meta">Coburg · a neighbour-run briefing</span></div>
         <h1 id="h-week" class="h1">This week around Ryan St</h1>
-        <ol class="summary">
-          {summary.map((s, i) => <li><span class="num">{i + 1}</span><p>{s.lead && <strong>{s.lead}</strong>} {s.rest}</p></li>)}
-        </ol>
       </div>
-      <aside class="say" aria-labelledby="h-say">
-        <div class="say-head"><h2 id="h-say">Have your say</h2><span class="meta">{closing.length} open now</span></div>
-        {closing.map((p) => { const dt = closesBy[p.id]; const n = dt ? daysBetween(today, dt) : null; return (
-          <button class="unbtn say-row" data-open={p.id} data-closes={dt || ''}>
-            <span class={`left${n != null && n <= 7 ? ' urgent' : ''}`}>{n == null ? 'Ongoing' : leftLabel(n)}</span>
-            <span class="say-name"><b>{p.name}</b><span class="meta">Closes {dt ? `${fmtDow(dt)} ${fmtShort(dt)}` : 'when the trial ends'}</span></span>
-            <Fragment set:html={icon('chevron-right', 18, 'var(--color-neutral-600)')} />
-          </button>); })}
-        <a class="btn btn-secondary say-foot" href="#dates">See every date</a>
-      </aside>
+      <div id="dates" class="dates">
+        <div class="agenda">
+          <div class="sec-head"><h2 id="h-dates" class="h2">Coming up</h2><a class="btn btn-ghost" href="/events.ics" style="min-height:44px"><Fragment set:html={icon('calendar')} />Add to my calendar</a></div>
+          <div class="chips" role="group" aria-label="Filter dates" id="agenda-chips">
+            {[['all', 'All dates'], ['say', 'Have your say'], ['decision', 'Decisions'], ['home', 'Bins & works'], ['event', 'Events']].map(([k, l], i) => <button class="chip" data-af={k} aria-pressed={String(i === 0)}>{l}</button>)}
+          </div>
+          <div id="agenda">
+            {agenda.map((m) => (
+              <div class="month"><h3>{m.name}</h3>
+                {m.items.map((e) => (
+                  <button class="unbtn arow" data-open={e.ref || ''} data-date={e.date} data-ag={AGROUP[e.kind] || 'all'} data-link={!e.ref && e.link ? e.link : ''}>
+                    <span class="disc">{e.end_label ? <><b>—</b><span>TBC</span></> : <><b>{pd(e.date).getUTCDate()}</b><span class="dow" data-date={e.date}>{e.date === today ? 'Today' : fmtDow(e.date)}</span></>}</span>
+                    <span class="ainfo">
+                      <span class="line"><span class={`tag ${KIND[e.kind]?.[1] || 'tag-neutral'}`} style="font-weight:600">{KIND[e.kind]?.[0] || e.kind}</span>{e.time && <span class="meta">{e.time}</span>}{e.end_label && <span class="meta">{e.end_label}</span>}{e.kind === 'closes' && <span class={`left${daysBetween(today, e.date) <= 7 ? ' urgent' : ''}`} data-closes={e.date}>{leftLabel(daysBetween(today, e.date))}</span>}</span>
+                      <span class="t">{e.title}</span>
+                      {e.where && <span class="meta">{e.where}</span>}
+                    </span>
+                  </button>))}
+              </div>))}
+            <p class="empty" id="agenda-empty" hidden>Nothing in this category right now.</p>
+          </div>
+          <button class="btn btn-secondary ag-more" id="agenda-more" hidden>Show all dates</button>
+        </div>
+        <aside class="aside">
+          <div class="panel brief">
+            <h3>The week in brief</h3>
+            <ol class="summary">
+              {summary.map((s, i) => <li><span class="num">{i + 1}</span><p>{s.lead && <strong>{s.lead}</strong>} {s.rest}</p></li>)}
+            </ol>
+          </div>
+          <div class="panel surface transit" id="transport">
+            <h3>Trams and trains</h3>
+            <p class="meta" id="live-meta" style="margin:0">Route 19, the Upfield line and local buses</p>
+            <div id="live" aria-live="polite"><p class="meta" style="margin:0">Checking Transport Victoria…</p></div>
+          </div>
+          <div class="panel decided">
+            <h3>Recently decided</h3>
+            {made.map((p) => <button class="unbtn drow" data-open={p.id}><span class="w">{p.decision!.date ? (p.decision!.date.length === 7 ? fmtMonth(p.decision!.date) : fmtDate(p.decision!.date)) : 'Done'}</span><span class="x">{p.decision!.text}</span></button>)}
+          </div>
+          <div class="panel surface">
+            <h3>Live elsewhere</h3>
+            <p style="margin:0;font-size:15px;color:var(--color-neutral-800)">This page updates weekly. For things that change by the minute:</p>
+            <div>{liveLinks.map((l) => <a class="lrow" href={l.url} target="_blank" rel="noopener">{l.label}<Fragment set:html={icon('arrow-up-right', 16)} /></a>)}</div>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <section id="nearby" class="sec" aria-labelledby="h-nearby">
@@ -103,50 +132,10 @@ const description = 'A neighbour-run weekly briefing on council, state and devel
       </div>
     </section>
 
-    <section id="dates" class="sec dates" aria-labelledby="h-dates">
-      <div class="agenda">
-        <div class="sec-head"><h2 id="h-dates" class="h2">Coming up</h2><a class="btn btn-ghost" href="/events.ics" style="min-height:44px"><Fragment set:html={icon('calendar')} />Add to my calendar</a></div>
-        <div class="chips" role="group" aria-label="Filter dates" id="agenda-chips">
-          {[['all', 'All dates'], ['say', 'Have your say'], ['decision', 'Decisions'], ['home', 'Bins & works'], ['event', 'Events']].map(([k, l], i) => <button class="chip" data-af={k} aria-pressed={String(i === 0)}>{l}</button>)}
-        </div>
-        <div id="agenda">
-          {agenda.map((m) => (
-            <div class="month"><h3>{m.name}</h3>
-              {m.items.map((e) => (
-                <button class="unbtn arow" data-open={e.ref || ''} data-date={e.date} data-ag={AGROUP[e.kind] || 'all'} data-link={!e.ref && e.link ? e.link : ''}>
-                  <span class="disc">{e.end_label ? <><b>—</b><span>TBC</span></> : <><b>{pd(e.date).getUTCDate()}</b><span class="dow" data-date={e.date}>{e.date === today ? 'Today' : fmtDow(e.date)}</span></>}</span>
-                  <span class="ainfo">
-                    <span class="line"><span class={`tag ${KIND[e.kind]?.[1] || 'tag-neutral'}`} style="font-weight:600">{KIND[e.kind]?.[0] || e.kind}</span>{e.time && <span class="meta">{e.time}</span>}{e.end_label && <span class="meta">{e.end_label}</span>}</span>
-                    <span class="t">{e.title}</span>
-                    {e.where && <span class="meta">{e.where}</span>}
-                  </span>
-                </button>))}
-            </div>))}
-          <p class="empty" id="agenda-empty" hidden>Nothing in this category right now.</p>
-        </div>
-      </div>
-      <aside class="aside">
-        <div class="panel surface transit" id="transport">
-          <h3>Trams and trains</h3>
-          <p class="meta" id="live-meta" style="margin:0">Route 19, the Upfield line and local buses</p>
-          <div id="live" aria-live="polite"><p class="meta" style="margin:0">Checking Transport Victoria…</p></div>
-        </div>
-        <div class="panel decided">
-          <h3>Recently decided</h3>
-          {made.map((p) => <button class="unbtn drow" data-open={p.id}><span class="w">{p.decision!.date ? (p.decision!.date.length === 7 ? fmtMonth(p.decision!.date) : fmtDate(p.decision!.date)) : 'Done'}</span><span class="x">{p.decision!.text}</span></button>)}
-        </div>
-        <div class="panel surface">
-          <h3>Live elsewhere</h3>
-          <p style="margin:0;font-size:15px;color:var(--color-neutral-800)">This page updates weekly. For things that change by the minute:</p>
-          <div>{liveLinks.map((l) => <a class="lrow" href={l.url} target="_blank" rel="noopener">{l.label}<Fragment set:html={icon('arrow-up-right', 16)} /></a>)}</div>
-        </div>
-      </aside>
-    </section>
-
     <section id="map" class="sec map-sec" aria-labelledby="h-map">
       <div class="sec-head"><h2 id="h-map" class="h2">On the map</h2><span class="cap">{located.length} places · rings at 1, 2 and 3 km</span></div>
       <div class="chips" role="group" aria-label="Show on map" id="map-toggles">
-        {cats.map((k) => <button class="chip tog" data-cat={k} aria-pressed="true"><i class="dot" style={`background:${COL[k]}`}></i>{SHORT[k]}</button>)}
+        {cats.map((k) => <button class="chip tog" data-cat={k} aria-pressed="true"><i class="dot dot-ico" style={`background:${COL[k]}`} set:html={icon(CAT_ICON[k], 13, '#fff', '')}></i>{SHORT[k]}</button>)}
       </div>
       <div class="seg only-mobile" role="group" aria-label="View" id="map-views" style="align-self:flex-start">
         <button class="seg-btn" data-view="map" aria-pressed="true">Map</button><button class="seg-btn" data-view="list" aria-pressed="false">List (<span id="list-n">0</span>)</button>

@@ -43,29 +43,8 @@ export function GET() {
       <td valign="top" style="padding:4px 0 16px;${BODY}font-size:16px;line-height:1.5;color:${C.text}">${lead ? `<strong>${esc(lead)}</strong> ` : ''}${esc(rest)}</td></tr>`;
   }).join('');
 
-  // 2. Have your say
+  // 2. Upcoming dates
   const upcoming = events.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-  const closesBy: Record<string, string> = {};
-  upcoming.filter((e) => e.kind === 'closes' && e.ref).forEach((e) => { if (!closesBy[e.ref!]) closesBy[e.ref!] = e.date; });
-  const open = projects.filter((p) => p.open).sort((a, b) => (closesBy[a.id] || '9').localeCompare(closesBy[b.id] || '9'));
-  const sayRows = open.map((p) => {
-    const dt = closesBy[p.id]; const n = dt ? dayDiff(today, dt) : null; const urgent = n != null && n <= 7;
-    const left = n == null ? 'Ongoing' : n <= 0 ? 'Today' : n === 1 ? '1 day' : `${n} days`;
-    return `<tr><td width="84" valign="middle" style="padding:10px 12px 10px 0;border-top:1px solid ${C.divider}">
-        <span style="display:inline-block;${BODY}font-size:13px;font-weight:700;padding:6px 10px;border-radius:999px;background:${urgent ? C.accent : C.n100};color:${urgent ? C.bg : C.text};white-space:nowrap">${left}</span></td>
-      <td valign="middle" style="padding:10px 0;border-top:1px solid ${C.divider};${BODY}">
-        <a href="${itemUrl(p.id)}" style="font-size:16px;font-weight:600;color:${C.text};text-decoration:none">${esc(p.name)}</a><br>
-        <span style="font-size:14px;color:${C.n700}">Closes ${dt ? `${fmtDow(dt)} ${fmtShort(dt)}` : 'when the trial ends'}</span></td></tr>`;
-  }).join('');
-  const sayCard = open.length ? `
-  <tr><td style="padding:32px 28px 0">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.surface};border-radius:28px"><tr><td style="padding:24px 24px 14px">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td style="${HEAD}font-size:24px;color:${C.text};padding-bottom:8px">Have your say</td>
-        <td align="right" style="${BODY}font-size:14px;color:${C.n700};padding-bottom:8px">${open.length} open now</td></tr></table>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${sayRows}</table>
-    </td></tr></table>
-  </td></tr>` : '';
 
   // 3. New near you (2 per row)
   const nearby = [...new Set(whatsNew.ids || [])].map((id) => byId[id]).filter(Boolean).sort((a, b) => (a.km ?? 99) - (b.km ?? 99)).slice(0, 6);
@@ -90,7 +69,7 @@ export function GET() {
           <div style="${HEAD}font-size:19px;line-height:1;padding-top:10px;color:${C.text}">${pd(e.date).getUTCDate()}</div>
           <div style="${BODY}font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:${C.n700};padding-top:3px">${e.date === today ? 'Today' : fmtDow(e.date)}</div></div></td>
       <td valign="top" style="padding:12px 0;${BODY}">
-        ${t[0] ? tag(t[0], t[1], t[2], t[3]) : ''}${e.time ? ` <span style="font-size:13px;color:${C.n700}">${esc(e.time)}</span>` : ''}<br>
+        ${t[0] ? tag(t[0], t[1], t[2], t[3]) : ''}${e.time ? ` <span style="font-size:13px;color:${C.n700}">${esc(e.time)}</span>` : ''}${e.kind === 'closes' ? (() => { const n = dayDiff(today, e.date); const u = n <= 7; return ` <span style="display:inline-block;${BODY}font-size:12px;font-weight:700;line-height:1;padding:5px 10px;border-radius:999px;background:${u ? C.accent : C.n100};color:${u ? C.bg : C.text};white-space:nowrap">${n <= 0 ? 'closes today' : n === 1 ? '1 day left' : `${n} days left`}</span>`; })() : ''}<br>
         <a href="${href}" style="display:inline-block;margin-top:6px;font-size:16px;font-weight:600;line-height:1.35;color:${C.text};text-decoration:none">${esc(e.title)}</a>
         ${e.where ? `<br><span style="font-size:13px;color:${C.n700}">${esc(e.where)}</span>` : ''}</td></tr>`;
   }).join('');
@@ -123,12 +102,16 @@ export function GET() {
   </td></tr>
   <tr><td style="padding:28px 28px 0">
     ${tag('Week of ' + fmtDate(whatsNew.week || updated), C.s100, C.s800)} <span style="${BODY}font-size:13px;color:${C.n700}">&nbsp;Coburg · a neighbour-run briefing</span>
-    <h1 style="${HEAD}font-size:40px;line-height:1.05;color:${C.text};margin:16px 0 20px">This week around Ryan St</h1>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${summary}</table>
+    <h1 style="${HEAD}font-size:40px;line-height:1.05;color:${C.text};margin:16px 0 0">This week around Ryan St</h1>
   </td></tr>
-  ${sayCard}
-  ${nearby.length ? section('New near you', `<div style="${BODY}font-size:14px;color:${C.n700};padding:6px 0 14px">Closest first · distance from Ryan St</div><table role="presentation" class="stack" width="100%" cellpadding="0" cellspacing="0" style="margin:0 -6px">${nearRows}</table>`, ['Map', SITE + '/#map']) : ''}
   ${soon.length ? section('Coming up', `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px">${agenda}</table>`, ['Add to calendar', SITE + '/events.ics']) : ''}
+  <tr><td style="padding:28px 28px 0">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.surface};border-radius:28px"><tr><td style="padding:22px 24px 8px">
+      <div style="${HEAD}font-size:22px;color:${C.text};padding-bottom:14px">The week in brief</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${summary}</table>
+    </td></tr></table>
+  </td></tr>
+  ${nearby.length ? section('New near you', `<div style="${BODY}font-size:14px;color:${C.n700};padding:6px 0 14px">Closest first · distance from Ryan St</div><table role="presentation" class="stack" width="100%" cellpadding="0" cellspacing="0" style="margin:0 -6px">${nearRows}</table>`, ['Map', SITE + '/#map']) : ''}
   ${decided}
   <tr><td style="padding:32px 28px 0;${BODY}font-size:15px;line-height:1.5;color:${C.n800}">
     <strong style="color:${C.text}">Trams and trains:</strong> live disruptions for Route 19, the Upfield line and local buses are on the <a href="${SITE}/#dates" style="color:${C.a700}">briefing page</a>.
