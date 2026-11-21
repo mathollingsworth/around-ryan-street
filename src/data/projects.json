@@ -1521,9 +1521,9 @@
    "sub": "Coburg and Brunswick activity centres",
    "rel": true,
    "open": false,
-   "status": "In force from 11 Nov 2026",
-   "what": "The state has added an Infrastructure Contributions Overlay to the Coburg and Brunswick train and tram zone activity centres, so most new housing built there pays a levy towards local infrastructure. The area runs roughly from Gaffney St in the north to Brunswick Rd in the south, either side of Sydney Rd and the Upfield line.",
-   "when": "Approved by the Minister for Planning and in force from 11 Nov 2026 (Amendment GC298).",
+   "status": "Approved 11 Nov; levy from 1 Jul 2027",
+   "what": "The state has added an Infrastructure Contributions Overlay to the Coburg and Brunswick train and tram zone activity centres. Eligible planning permits issued from 1 July 2027 will pay a levy towards local infrastructure. The area runs roughly from Gaffney St in the north to Brunswick Rd in the south, either side of Sydney Rd and the Upfield line.",
+   "when": "Approved by the Minister for Planning on 11 Nov 2026 (Amendment GC298); councils can start charging on permits from 1 July 2027.",
    "why": "Ryan St sits inside the Coburg activity centre catchment, so new apartments and townhouses nearby will help pay for local parks, roads and community facilities.",
    "link": "https://planning-schemes.app.planning.vic.gov.au/Merri-bek/amendments/GC298",
    "link_label": "State amendment page",
@@ -1554,6 +1554,22 @@
    "url": "",
    "first_seen": "2026-11-20",
    "icon": "🍷"
+  },
+  {
+   "id": "c239",
+   "cat": "dev",
+   "name": "Amendment C239: heritage in the Brunswick and Coburg activity centres",
+   "sub": "Coburg and Brunswick activity centres",
+   "rel": true,
+   "open": false,
+   "status": "Authorised; exhibition being prepared",
+   "what": "Proposes new heritage controls for buildings in the Brunswick and Coburg activity centres, based on council's Stage 2 heritage study. The state has authorised it with conditions and council is preparing it for public exhibition.",
+   "when": "Authorised by the state with conditions; council officers are preparing it for public exhibition (council report, 11 Nov 2026). Exhibition dates not yet set.",
+   "why": "Heritage overlays decide what can be demolished or built along Sydney Rd and around central Coburg.",
+   "link": "https://planning-schemes.app.planning.vic.gov.au/Merri-bek/amendments",
+   "link_label": "State amendments register",
+   "first_seen": "2026-11-11",
+   "icon": "🏛️"
   }
  ],
  "soon": [
@@ -1561,6 +1577,11 @@
    "when": "Ongoing",
    "text": "Bins north of Bell St: strike continues; leave a missed bin out until it is collected",
    "until": "2026-12-31"
+  },
+  {
+   "when": "Sat 28 Nov",
+   "text": "State election: early voting 9am-6pm until Fri 27 Nov (closed Sun 22 Nov)",
+   "until": "2026-11-28"
   },
   {
    "when": "Closes Sun 29 Nov",
@@ -1836,6 +1857,14 @@
    "ref": "blair"
   },
   {
+   "date": "2026-11-28",
+   "title": "Victorian state election",
+   "kind": "event",
+   "where": "Voting centres across Merri-bek",
+   "link": "https://www.vec.vic.gov.au/voting/2026-state-election/voting-options",
+   "time": "8am-6pm"
+  },
+  {
    "date": "2026-11-29",
    "title": "Amendment C233 (heritage and planning review): submissions close",
    "kind": "closes",
@@ -1938,18 +1967,19 @@
  "whats_new": {
   "week": "2026-11-22",
   "summary": [
-   "Last call: the draft Local Law (pets, building sites, bins) is open for feedback until Monday 30 Nov, and heritage and planning rule changes (Amendment C233) close the day before, Sunday 29 Nov.",
-   "Bins: the council workers' strike north of Bell St is still going, so leave a missed bin out until it is collected; council ran a catch-up collection on Saturday 21 Nov.",
+   "Vote: the Victorian state election is on Saturday 28 Nov, and early voting is open 9am to 6pm until Friday 27 Nov (closed Sunday 22 Nov).",
+   "Last call: submissions on heritage and planning rule changes (Amendment C233) close Sunday 29 Nov, and feedback on the draft Local Law (pets, building sites, bins) closes Monday 30 Nov.",
    "School run: feedback on the two Blair St designs outside Merri-bek Primary closes Wednesday 2 Dec, and Mitchell Reserve playground ideas close Saturday 5 Dec.",
-   "New levy: since Wednesday 11 Nov, most new housing in the Coburg and Brunswick activity centres (Gaffney St down to Brunswick Rd) pays a state infrastructure contribution towards local parks, roads and facilities.",
-   "Coming up: Carols by the Lake at Coburg Lake Reserve on Saturday 5 Dec (6-9:30pm), and the Coburg Night Market at Bridges Reserve from Thursday 17 to Saturday 19 Dec."
+   "Bins: the council workers' strike north of Bell St is still going, so leave a missed bin out until it is collected; council ran a catch-up collection on Saturday 21 Nov.",
+   "Planning: the state approved an infrastructure levy on new housing around Coburg and Brunswick stations on Wednesday 11 Nov, charged on permits from 1 July 2027 (GC298), new heritage controls for the two activity centres (C239) are being readied for exhibition, and a liquor licence change is in at 83-85 Sydney Rd."
   ],
   "ids": [
    "locallaw",
+   "c233",
    "bins-strike",
    "blair",
    "gc298",
-   "c233",
+   "c239",
    "mitchell",
    "pa-3596855"
   ],
@@ -1961,6 +1991,14 @@
     "tag": "Bins",
     "text": "Bin strike north of Bell St continues. Leave a missed bin out until it is collected.",
     "ref": "bins-strike"
+   },
+   {
+    "group": "dates",
+    "date": "2026-11-28",
+    "kind": "event",
+    "tag": "Vote",
+    "text": "Victorian state election. Early voting 9am-6pm until Fri 27 Nov.",
+    "link": "https://www.vec.vic.gov.au/voting/2026-state-election/voting-options"
    },
    {
     "group": "dates",
@@ -2005,10 +2043,10 @@
    {
     "group": "new",
     "label": "11 Nov",
-    "sub": "In force",
+    "sub": "Approved",
     "kind": "planning",
     "tag": "Planning",
-    "text": "State infrastructure levy on new housing in the Coburg and Brunswick activity centres (Amendment GC298).",
+    "text": "State infrastructure levy on new housing in the Coburg and Brunswick activity centres, charged on permits from 1 July 2027 (GC298).",
     "ref": "gc298"
    },
    {
@@ -2036,6 +2074,15 @@
     "tag": "Event",
     "text": "Coburg Night Market at Bridges Reserve, Bell St, 17 to 19 Dec.",
     "link": "https://merri-bek.vic.gov.au/exploring-merri-bek/arts-merri-bek/festivals-and-major-events/coburg-night-market"
+   },
+   {
+    "group": "new",
+    "label": "Nov",
+    "sub": "Authorised",
+    "kind": "planning",
+    "tag": "Planning",
+    "text": "Heritage controls for the Coburg and Brunswick activity centres (C239) heading to exhibition.",
+    "ref": "c239"
    }
   ]
  },
