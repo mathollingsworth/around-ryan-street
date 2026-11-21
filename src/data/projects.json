@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08",
+ "updated": "2026-11-22",
  "coverage": "Conversations Merri-bek alerts since 27 Jan 2026, live Coburg projects, council news and notices, PlanningAlerts applications within about 2 km; PlanningAlerts API (2 km radius); Transport Victoria service alerts; state planning scheme amendments",
  "projects": [
   {
@@ -64,9 +64,9 @@
    "lon": 144.9454,
    "rel": false,
    "open": false,
-   "status": "Draft concept due Nov 2026 (TBC)",
+   "status": "Draft concept being prepared",
    "what": "Playspace upgrade (may move to the south-west corner) plus seats, paths, a possible picnic area and fitness station.",
-   "when": "Infrastructure works Feb–Apr 2027, playspace works Jul–Nov 2027.",
+   "when": "Two-year upgrade starting late July 2027.",
    "why": "",
    "url": "hallam-reserve",
    "first_seen": "2026-07-27",
@@ -81,7 +81,7 @@
    "lon": 144.9445,
    "rel": false,
    "open": false,
-   "status": "Draft concept delayed to mid-Nov",
+   "status": "Draft concept due late Nov 2026",
    "what": "New play equipment and park furniture. Delayed to work through schoolchildren crossing the reserve from the neighbouring primary school.",
    "when": "Construction Apr–Jun 2027, reopens June 2027.",
    "why": "",
@@ -278,11 +278,11 @@
    "name": "Aquatics & Leisure Strategic Plan",
    "sub": "Coburg, Brunswick, Fawkner, Oak Park, Pascoe Vale",
    "rel": true,
-   "open": true,
-   "status": "Draft open, closes Wed 11 Nov",
+   "open": false,
+   "status": "Feedback closed; final plan due 30 Nov",
    "what": "Four-year plan for programs and services at the leisure centres, now run by Belgravia Leisure (from July 2026). Feedback shapes programs, days and times, not fees, hours or capital works.",
-   "when": "Final plan 30 Nov 2026.",
-   "why": "If you want different kids' swim or class times at Coburg Leisure Centre, this is the window to say so.",
+   "when": "Draft was open 28 Oct to 11 Nov 2026; final plan 30 Nov 2026.",
+   "why": "Sets the kids' swim and class programs at Coburg Leisure Centre for the next four years.",
    "url": "aquatics-leisure-strategy",
    "first_seen": "2026-07-20",
    "image_src": "https://hdp-au-prod-app-more-conversations-files.s3.ap-southeast-2.amazonaws.com/6617/8417/2908/Fawkner_leisure_Launch_LR-68.jpg",
@@ -467,9 +467,9 @@
    "sub": "Municipality-wide",
    "rel": true,
    "open": true,
-   "status": "Draft open, closes Thu 12 Nov",
+   "status": "Draft open, closes Mon 30 Nov",
    "what": "Rewrite of the rules council enforces: animals, property amenity, building sites, vehicles on council land, waste and recycling, fire safety, smoking and alcohol. Draft law, building works code and a side-by-side comparison with the 2018 law are up.",
-   "when": "Council adoption February 2027.",
+   "when": "Feedback 15 Oct to 30 Nov 2026; council adoption February 2027.",
    "why": "Covers pets, building-site rules for neighbours' works and bins, so it shapes everyday life on the street.",
    "url": "local-law",
    "first_seen": "2026-04-08",
@@ -989,9 +989,9 @@
    "sub": "North of Bell St",
    "rel": true,
    "open": false,
-   "status": "Ongoing, union missing some bins",
+   "status": "Ongoing north of Bell St",
    "what": "Union (ASU) industrial action: crews intend to miss every 5th household bin north of Bell Street. South of Bell St is run by a contractor and not affected. If your bin isn't collected, leave it out.",
-   "when": "Started 2 Nov 2026; catch-up run Sat 7 Nov; action ongoing.",
+   "when": "Started 2 Nov 2026; council ran catch-up collections on Sat 7 and Sat 21 Nov; action still ongoing at 20 Nov.",
    "why": "Ryan St is north of Bell St, so we're affected.",
    "link": "https://www.merri-bek.vic.gov.au/my-council/news-and-publications/news/bin-collections-and-industrial-action/",
    "link_label": "Council news",
@@ -1105,9 +1105,9 @@
    "sub": "Municipality-wide",
    "rel": true,
    "open": false,
-   "status": "Planning panel appointed",
+   "status": "Awaiting council adoption",
    "what": "Introduces a council-wide Development Contributions Plan, so new developments anywhere in Merri-bek pay a levy towards local infrastructure. Applies to all land in the municipality.",
-   "when": "Exhibited May to June 2026; independent panel appointed Sep 2026, hearing and report next.",
+   "when": "Exhibited May to June 2026; went to an independent panel; with council for adoption since 10 Nov 2026.",
    "why": "",
    "link": "https://planning-schemes.app.planning.vic.gov.au/Merri-bek/amendments/C236mbek",
    "link_label": "State amendment page",
@@ -1115,7 +1115,7 @@
    "decision": {
     "state": "due",
     "date": "2027-03",
-    "text": "Panel report on C236 development contributions, then council decision"
+    "text": "Council decides whether to adopt C236 development contributions"
    },
    "icon": "💰"
   },
@@ -1513,37 +1513,78 @@
    "short": "16 Catherine St licence",
    "icon": "🍷",
    "nolabel": true
+  },
+  {
+   "id": "gc298",
+   "cat": "dev",
+   "name": "State infrastructure levy for Coburg and Brunswick activity centres",
+   "sub": "Coburg and Brunswick activity centres",
+   "rel": true,
+   "open": false,
+   "status": "In force from 11 Nov 2026",
+   "what": "The state has added an Infrastructure Contributions Overlay to the Coburg and Brunswick train and tram zone activity centres, so most new housing built there pays a levy towards local infrastructure. The area runs roughly from Gaffney St in the north to Brunswick Rd in the south, either side of Sydney Rd and the Upfield line.",
+   "when": "Approved by the Minister for Planning and in force from 11 Nov 2026 (Amendment GC298).",
+   "why": "Ryan St sits inside the Coburg activity centre catchment, so new apartments and townhouses nearby will help pay for local parks, roads and community facilities.",
+   "link": "https://planning-schemes.app.planning.vic.gov.au/Merri-bek/amendments/GC298",
+   "link_label": "State amendment page",
+   "first_seen": "2026-11-11",
+   "decision": {
+    "state": "made",
+    "date": "2026-11-11",
+    "text": "State approved infrastructure contributions for the Coburg and Brunswick activity centres (GC298)"
+   },
+   "icon": "💰"
+  },
+  {
+   "id": "pa-3596855",
+   "cat": "dev",
+   "name": "Liquor licence change, 83-85 Sydney Rd",
+   "short": "83-85 Sydney Rd",
+   "sub": "Coburg",
+   "lat": -37.7530897,
+   "lon": 144.9642818,
+   "rel": false,
+   "open": false,
+   "status": "Application lodged Nov 2026",
+   "what": "Application to vary the liquor licence at 83-85 Sydney Rd, near Moreland Rd. Same site as the October application for a venue with liquor at 85 Sydney Rd.",
+   "when": "Lodged about 20 Nov 2026.",
+   "why": "About 2 km south on Sydney Rd; licence changes can affect late-night noise and activity on the strip.",
+   "link": "https://www.planningalerts.org.au/applications/3596855",
+   "link_label": "PlanningAlerts",
+   "url": "",
+   "first_seen": "2026-11-20",
+   "icon": "🍷"
   }
  ],
  "soon": [
   {
    "when": "Ongoing",
    "text": "Bins north of Bell St: strike continues; leave a missed bin out until it is collected",
-   "until": "2026-11-30"
+   "until": "2026-12-31"
   },
   {
-   "when": "Closes Wed 11 Nov",
-   "text": "Aquatics & Leisure Strategic Plan: draft open for comment (Coburg Leisure Centre programs)",
-   "until": "2026-11-11"
+   "when": "Closes Sun 29 Nov",
+   "text": "Amendment C233: heritage and planning rule changes open for submissions",
+   "until": "2026-11-29"
   },
   {
-   "when": "Closes Thu 12 Nov",
+   "when": "Closes Mon 30 Nov",
    "text": "General Local Law draft: animals, building sites, bins and property rules",
-   "until": "2026-11-12"
-  },
-  {
-   "when": "Nov 2026 (TBC)",
-   "text": "Harmony Park risky play: final concept plan due",
    "until": "2026-11-30"
   },
   {
-   "when": "19–20 Nov · closes 2 Dec",
-   "text": "Blair St school precinct: pop-ups at Merri-bek Primary, two design options",
+   "when": "Closes Wed 2 Dec",
+   "text": "Blair St school precinct: two design options for Merri-bek Primary",
    "until": "2026-12-02"
   },
   {
-   "when": "Closes 5 Dec",
+   "when": "Closes Sat 5 Dec",
    "text": "Mitchell Reserve playground: phase 1 ideas open",
+   "until": "2026-12-05"
+  },
+  {
+   "when": "Sat 5 Dec, 6-9:30pm",
+   "text": "Carols by the Lake at Coburg Lake Reserve",
    "until": "2026-12-05"
   },
   {
@@ -1779,25 +1820,6 @@
  ],
  "events": [
   {
-   "date": "2026-11-07",
-   "title": "Catch-up bin collection north of Bell St",
-   "kind": "household",
-   "where": "North of Bell St",
-   "ref": "bins-strike"
-  },
-  {
-   "date": "2026-11-11",
-   "title": "Aquatics and leisure plan: feedback closes",
-   "kind": "closes",
-   "ref": "aquatics"
-  },
-  {
-   "date": "2026-11-12",
-   "title": "Draft Local Law: feedback closes",
-   "kind": "closes",
-   "ref": "locallaw"
-  },
-  {
    "date": "2026-11-19",
    "time": "3-6pm",
    "title": "Blair St school precinct pop-up",
@@ -1826,6 +1848,12 @@
    "ref": "aquatics"
   },
   {
+   "date": "2026-11-30",
+   "title": "Draft Local Law: feedback closes",
+   "kind": "closes",
+   "ref": "locallaw"
+  },
+  {
    "date": "2026-12-02",
    "title": "Blair St school precinct: feedback closes",
    "kind": "closes",
@@ -1841,8 +1869,9 @@
    "date": "2026-12-05",
    "title": "Carols by the Lake",
    "kind": "event",
-   "where": "Coburg Lake",
-   "link": "https://www.merri-bek.vic.gov.au/carols-by-the-lake/"
+   "where": "Coburg Lake Reserve, Gaffney St",
+   "link": "https://www.merri-bek.vic.gov.au/carols-by-the-lake/",
+   "time": "6-9:30pm"
   },
   {
    "date": "2026-12-09",
@@ -1907,56 +1936,31 @@
   }
  ],
  "whats_new": {
-  "week": "2026-11-08",
+  "week": "2026-11-22",
   "summary": [
-   "Last call: feedback on the aquatics and leisure plan closes Wednesday 11 Nov, and the draft Local Law (pets, building sites, bins) closes Thursday 12 Nov.",
-   "Bins: the council workers' strike north of Bell St is ongoing, with crews missing about one bin in five, so leave a missed bin out until it is collected.",
-   "School run: Blair St precinct pop-ups at Merri-bek Primary on Thursday 19 Nov (3-6pm) and Friday 20 Nov (7:30-9:30am), with feedback open until Wednesday 2 Dec.",
-   "Coming up: draft park plans for Tony Mommsen and Hallam reserves are due this month, and the Coburg Night Market returns to Bridges Reserve from Thursday 17 to Saturday 19 Dec.",
-   "Planning: no new large applications near Ryan St this week, and heritage and planning rule changes (Amendment C233) are open for submissions until Sunday 29 Nov."
+   "Last call: the draft Local Law (pets, building sites, bins) is open for feedback until Monday 30 Nov, and heritage and planning rule changes (Amendment C233) close the day before, Sunday 29 Nov.",
+   "Bins: the council workers' strike north of Bell St is still going, so leave a missed bin out until it is collected; council ran a catch-up collection on Saturday 21 Nov.",
+   "School run: feedback on the two Blair St designs outside Merri-bek Primary closes Wednesday 2 Dec, and Mitchell Reserve playground ideas close Saturday 5 Dec.",
+   "New levy: since Wednesday 11 Nov, most new housing in the Coburg and Brunswick activity centres (Gaffney St down to Brunswick Rd) pays a state infrastructure contribution towards local parks, roads and facilities.",
+   "Coming up: Carols by the Lake at Coburg Lake Reserve on Saturday 5 Dec (6-9:30pm), and the Coburg Night Market at Bridges Reserve from Thursday 17 to Saturday 19 Dec."
   ],
   "ids": [
+   "locallaw",
    "bins-strike",
-   "pa-3545364",
-   "pa-3574939",
-   "pa-3555630",
-   "pa-3579080",
    "blair",
+   "gc298",
    "c233",
-   "mitchell"
+   "mitchell",
+   "pa-3596855"
   ],
   "items": [
    {
     "group": "dates",
-    "date": "2026-11-08",
+    "date": "2026-11-22",
     "kind": "household",
     "tag": "Bins",
     "text": "Bin strike north of Bell St continues. Leave a missed bin out until it is collected.",
     "ref": "bins-strike"
-   },
-   {
-    "group": "dates",
-    "date": "2026-11-11",
-    "kind": "closes",
-    "tag": "Closes",
-    "text": "Aquatics and leisure plan: last day for feedback.",
-    "ref": "aquatics"
-   },
-   {
-    "group": "dates",
-    "date": "2026-11-12",
-    "kind": "closes",
-    "tag": "Closes",
-    "text": "Draft Local Law: last day for feedback. Covers building sites, work hours, bins and pets.",
-    "ref": "locallaw"
-   },
-   {
-    "group": "dates",
-    "date": "2026-11-19",
-    "kind": "popup",
-    "tag": "Pop-up",
-    "text": "Blair St school precinct pop-up at Merri-bek Primary, 3-6pm. Second one Fri 20 Nov, 7:30-9:30am.",
-    "ref": "blair"
    },
    {
     "group": "dates",
@@ -1967,31 +1971,20 @@
     "ref": "c233"
    },
    {
-    "group": "new",
-    "label": "Aug",
-    "sub": "Lodged",
-    "kind": "planning",
-    "tag": "Planning",
-    "text": "Childcare centre at 742 Sydney Rd, Coburg North. About 400 m from Ryan St.",
-    "ref": "pa-3545364"
+    "group": "dates",
+    "date": "2026-11-30",
+    "kind": "closes",
+    "tag": "Closes",
+    "text": "Draft Local Law: last day for feedback. Covers building sites, work hours, bins and pets.",
+    "ref": "locallaw"
    },
    {
-    "group": "new",
-    "label": "Oct",
-    "sub": "Lodged",
-    "kind": "planning",
-    "tag": "Planning",
-    "text": "Nine townhouse lots at 1 Main St, Coburg. About 600 m away.",
-    "ref": "pa-3574939"
-   },
-   {
-    "group": "new",
-    "label": "Oct",
-    "sub": "Lodged",
-    "kind": "planning",
-    "tag": "Planning",
-    "text": "Staged subdivision at 16-20 Sheppard St, Coburg North: about 77 lots and a new reserve.",
-    "ref": "pa-3569188"
+    "group": "dates",
+    "date": "2026-12-02",
+    "kind": "closes",
+    "tag": "Closes",
+    "text": "Blair St school precinct: last day to comment on the two design options.",
+    "ref": "blair"
    },
    {
     "group": "dates",
@@ -2002,31 +1995,39 @@
     "ref": "mitchell"
    },
    {
-    "group": "new",
-    "label": "Sep",
-    "sub": "Lodged",
-    "kind": "planning",
-    "tag": "Planning",
-    "text": "Eight homes at 32 Bell St, Coburg, with removal of boundary canopy trees. 1.3 km away.",
-    "ref": "pa-3555630"
+    "group": "dates",
+    "date": "2026-12-05",
+    "kind": "event",
+    "tag": "Event",
+    "text": "Carols by the Lake, Coburg Lake Reserve, 6-9:30pm. Free.",
+    "link": "https://www.merri-bek.vic.gov.au/carols-by-the-lake/"
    },
    {
     "group": "new",
-    "label": "Oct",
-    "sub": "Lodged",
+    "label": "11 Nov",
+    "sub": "In force",
     "kind": "planning",
     "tag": "Planning",
-    "text": "Place of worship at 13 Dawson St, Coburg North, with reduced car parking. 0.7 km away.",
-    "ref": "pa-3579080"
+    "text": "State infrastructure levy on new housing in the Coburg and Brunswick activity centres (Amendment GC298).",
+    "ref": "gc298"
    },
    {
     "group": "new",
-    "label": "6 Nov",
-    "sub": "Announced",
-    "kind": "new",
-    "tag": "Have your say",
-    "text": "Mitchell Reserve playground ideas, open until 5 Dec.",
-    "ref": "mitchell"
+    "label": "10 Nov",
+    "sub": "Update",
+    "kind": "planning",
+    "tag": "Planning",
+    "text": "Council-wide developer levy (C236) is now with council for adoption.",
+    "ref": "c236"
+   },
+   {
+    "group": "new",
+    "label": "Nov",
+    "sub": "Lodged",
+    "kind": "planning",
+    "tag": "Planning",
+    "text": "Liquor licence change at 83-85 Sydney Rd, Coburg. About 2 km south.",
+    "ref": "pa-3596855"
    },
    {
     "group": "dates",
